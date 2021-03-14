@@ -26,18 +26,24 @@
     </div>
     @endif
 
-   
+        @if($errors->has('file'))
+        <div class="alert alert-danger" role="alert">
+            {{ $errors->first('file')}}
+        </div>
+		@endif
 </div>
 <div class="row">
     <div class="col-md-12">
         <div class="panel">
             <div class="panel-heading">
                 <div class="right">
-                     <a href="/siswa/export" class="btn btn-success"><i
-                            class="lnr lnr-print"></i>Export To Excel</a>
-                     <a href="/siswa/export_pdf" class="btn btn-success"><i
-                            class="lnr lnr-print"></i>Export To PDF</a>
-                    <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#modal-tambah"><i
+                    <a href="#" class="btn btn-sm btn-success" data-toggle="modal" data-target="#modal-import"><i
+                            class="lnr lnr-print"></i>Import From Excel</a>
+                    <a href="/siswa/export" class="btn btn-sm btn-primary"><i class="lnr lnr-print"></i>Export To
+                        Excel</a>
+                    <a href="/siswa/export_pdf" class="btn btn-sm btn-info"><i class="lnr lnr-print"></i>Export To
+                        PDF</a>
+                    <a href="#" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-tambah"><i
                             class="lnr lnr-plus-circle"></i> Tambah Data Siswa</a>
                 </div>
             </div>
@@ -65,13 +71,14 @@
                             </th>
                         </tr>
                     </thead>
-                
+
                 </table>
             </div>
         </div>
     </div>
 </div>
-<!-- Modal -->
+
+<!-- Modal Tambah-->
 <div class="modal fade" id="modal-tambah" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -87,9 +94,10 @@
                     {{csrf_field()}}
                     <div class="form-group {{$errors->has('nisn') ? 'has-error' : ''}}">
                         <label for="nama_depan">NISN</label>
-                    <input type="text" name="nisn" class="form-control" id="nisn" placeholder="Masukan NISN" value="{{old('nisn')}}">
+                        <input type="text" name="nisn" class="form-control" id="nisn" placeholder="Masukan NISN"
+                            value="{{old('nisn')}}">
                         @if($errors->has('nisn'))
-                            <span class="help-block">{{ $errors->first('nisn')}}</span>
+                        <span class="help-block">{{ $errors->first('nisn')}}</span>
                         @endif
                     </div>
                     <div class="form-group {{$errors->has('nama_depan') ? 'has-error' : ''}}">
@@ -97,7 +105,7 @@
                         <input type="text" name="nama_depan" class="form-control" id="nama_depan"
                             placeholder="Masukan Nama Depan" value="{{old('nama_depan')}}">
                         @if($errors->has('nama_depan'))
-                            <span class="help-block">{{ $errors->first('nama_depan')}}</span>
+                        <span class="help-block">{{ $errors->first('nama_depan')}}</span>
                         @endif
                     </div>
                     <div class="form-group">
@@ -110,7 +118,7 @@
                         <input type="email" value="{{old('email')}}" name="email" class="form-control"
                             placeholder="Masukan Email">
                         @if($errors->has('email'))
-                            <span class="help-block">{{ $errors->first('email')}}</span>
+                        <span class="help-block">{{ $errors->first('email')}}</span>
                         @endif
                     </div>
                     <div class="form-group {{$errors->has('jenis_kelamin') ? 'has-error' : ''}}">
@@ -120,7 +128,7 @@
                             <option value="P" {{old('jenis_kelamin') == 'P' ? 'selected' : ''}}>Perempuan</option>
                         </select>
                         @if($errors->has('jenis_kelamin'))
-                            <span class="help-block">{{ $errors->first('jenis_kelamin')}}</span>
+                        <span class="help-block">{{ $errors->first('jenis_kelamin')}}</span>
                         @endif
                     </div>
                     <div class="form-group {{$errors->has('agama') ? 'has-error' : ''}}">
@@ -133,7 +141,7 @@
                             <option>Budha</option>
                         </select>
                         @if($errors->has('agama'))
-                            <span class="help-block">{{ $errors->first('agama')}}</span>
+                        <span class="help-block">{{ $errors->first('agama')}}</span>
                         @endif
                     </div>
                     <div class="form-group">
@@ -153,41 +161,83 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Import-->
+<div class="modal fade" id="modal-import" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">Import From Excel</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+                <div class="modal-body">
+                    <form action="/siswa/import" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <input required type="file" name="file">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Import</button>
+                    </div>
+                    </form>
+            </div>
+    </div>
+</div>
 @endsection
 @section('footer')
-    <script>
-        $(document).ready(function() {
-            $('#example').DataTable({
-                processing:true,
-                serverside:true,
-                ajax:"{{route('ajax.get.data.siswa')}}",
-                columns:[
-                    {data:"nama_lengkap", name:"nama_lengkap"},
-                    {data:"jns_kelamin", name:"jns_kelamin"},
-                    {data:"agama", name:"agama"},
-                    {data:"alamat", name:"alamat"},
-                    {data:"rata_nilai", name:"rata_nilai"},
-                    {data:"aksi", name:"aksi"},
-                ]
-            });
-
-            $('#example').on('click', '.delete',function (){
-                const id = $(this).data('id');
-                Swal.fire({
-                    title: 'Apakah anda yakin?',
-                    text: "Hapus data siswa",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                            window.location = "/siswa/"+id+"/delete";
-                        }
-                    })
-                });
+<script>
+    $(document).ready(function () {
+        $('#example').DataTable({
+            processing: true,
+            serverside: true,
+            ajax: "{{route('ajax.get.data.siswa')}}",
+            columns: [{
+                    data: "nama_lengkap",
+                    name: "nama_lengkap"
+                },
+                {
+                    data: "jns_kelamin",
+                    name: "jns_kelamin"
+                },
+                {
+                    data: "agama",
+                    name: "agama"
+                },
+                {
+                    data: "alamat",
+                    name: "alamat"
+                },
+                {
+                    data: "rata_nilai",
+                    name: "rata_nilai"
+                },
+                {
+                    data: "aksi",
+                    name: "aksi"
+                },
+            ]
         });
-    </script>
+
+        $('#example').on('click', '.delete', function () {
+            const id = $(this).data('id');
+            Swal.fire({
+                title: 'Apakah anda yakin?',
+                text: "Hapus data siswa",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location = "/siswa/" + id + "/delete";
+                }
+            })
+        });
+    });
+
+</script>
 
 @endsection

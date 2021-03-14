@@ -33,7 +33,7 @@ class SiswaController extends Controller
                 'email' => 'required|email|unique:users',
                 'jenis_kelamin' => 'required',
                 'agama' => 'required',
-                'avatar' => 'mines:jpg, jpeg, png'
+                'avatar' => 'mimes:jpg, jpeg, png'
             ]
         );
         
@@ -147,5 +147,19 @@ class SiswaController extends Controller
     {
         $siswa = auth()->user()->siswa;
         return view('siswa.my_profil', compact('siswa'));
+    }
+
+    public function import_excel(Request $request)
+    {
+        // validasi
+		$this->validate($request, 
+            [
+                'file' => 'mimes:xls, xlsx'
+            ]
+        );
+
+        Excel::import(new \App\Imports\SiswaImport, $request->file('file'));
+
+        return redirect('/siswa')->with('sukses', 'Data Berhasil Diimport!');
     }
 }
